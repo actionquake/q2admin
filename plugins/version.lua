@@ -5,16 +5,19 @@ simple !version* script by TgT
 		q2proded r548 or later
 		
 	Changelog:
+		v2.1
+		+ works with Aprq2 and Q2pro
 		v2.0
 		+ a rewrite from scratch
-	
+	TODO:
+		+ make it universal for every client...
 --]]
 
-local version = "2.0"
+local version = "2.1"
 local word = "!versio.+"
 
 gi.AddCommandString("sets q2a_version "..version.."\n")
-gi.AddCommandString("addstuffcmd connect setu version $${version}")
+gi.AddCommandString("addstuffcmd begin set version 0 u")
 
 function ClientCommand(client)
 	local sm = string.match
