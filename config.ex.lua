@@ -20,5 +20,6 @@ plugins = {
     },
     coinflip = {}, -- Heads & Tails script
     broadcast = {}, -- Broadcast script
-    version = {} -- version feedback script
+    version = {}, -- version feedback script
+    mvd2cprints = {} -- store centerprints from AQ2 into MVD2 
 }
