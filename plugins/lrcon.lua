@@ -2,10 +2,11 @@
 -- a very limited rcon by hifi <3  version 1.0
 --
 -- changes by TgT
+-- 1.3 Do not allow ghosts to use lrcon, they crash script
 -- 1.2 disable gamemap (causing crashes) and make sure sv_allow_map is 1
 -- 1.1 fixed sv softmap and sv stuffall and maybe lrcon status crash
 
-local version = "1.2"
+local version = "1.3"
 gi.AddCommandString("sets q2a_lrcon "..version.."\n")
 
 local quit_on_empty 
@@ -39,6 +40,7 @@ end
 
 function ClientCommand(client)
     if(gi.argv(1) == 'lrcon') then
+        if ex.players[client] ~= nil then
         if gi.argc() == 1 then
             gi.cprintf(client, PRINT_HIGH, 'Usage: lrcon <command> [parameters]\n')
             gi.cprintf(client, PRINT_HIGH, 'Type "lrcon help" for more information.\n')
@@ -191,8 +193,10 @@ function ClientCommand(client)
             end
         end
         return true
+    else
+        gi.cprintf(client, PRINT_HIGH, 'lrcon is unavailable, please reconnect...\n')
+        return true
     end
-
     return false
 end
 
