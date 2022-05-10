@@ -262,11 +262,11 @@ game_export_t *GetGameAPI(game_import_t *import)
 
 	gi = *import;
 
-	game = gi.cvar ("game", "baseq2", 0);
+	game = gi.cvar ("game", GAMEVERSION, 0);
 	q2a_strcpy(moddir, game->string);
 	
 	if(moddir[0] == 0)
-		q2a_strcpy(moddir, "baseq2");
+		q2a_strcpy(moddir, GAMEVERSION);
 
 	gi.dprintf ("Q2Admin %s running %s\n", Q2A_VERSION, moddir);
 	gi.cvar ("*Q2Admin", Q2A_VERSION, CVAR_SERVERINFO|CVAR_NOSET);
