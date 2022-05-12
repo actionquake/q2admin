@@ -1,5 +1,5 @@
 --[[
-LUA script for downloading cvarbanlist
+LUA script for downloading central cvarbanlist
 ------------------------------
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ plugins = {
     },
     cvarbans = {
         root_dir = '/home/aq2/aq2server/q2srv/',  -- rootdir of this server
-        url = 'https://raw.githubusercontent.com/m4son/q2admin/master/action/h_cvarbans.cfg', -- url to download h_cvarbans.cfg
+        url = 'https://raw.githubusercontent.com/actionquake/q2admin/master/action/h_cvarbans.cfg', -- url to download h_cvarbans.cfg
     }, -- downloads and executes centralized cvarbanlist
 }
 ------------------------------
@@ -47,7 +47,6 @@ end
 gi.AddCommandString("sets q2a_cvarbans "..version.."\n")
 
 function cvarbans_os_exec(script)
-    --gi.dprintf('cvarbans.lua cvarbans_os_exec: '..script..'\n')
     os.execute(script)
     wait(1000) -- wait 1s to make sure download is complete and went smooth
     gi.AddCommandString("exec h_cvarbans.cfg\n") -- execute the file
