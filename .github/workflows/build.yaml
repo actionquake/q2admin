@@ -13,17 +13,10 @@ jobs:
           repository: actionquake/q2admin
           path: build
 
-      - name: Change references from baseq2 to action and rename config.ex.lua
+      - name: Rename config.ex.lua
         working-directory: build/src
         run: |
-          sed -i 's/baseq2/action/g' *
           mv ../config.ex.lua ../config.lua
-
-      - name: Get version info for q2admin
-        id: version
-        run: |
-          cp config/build/getversion.sh build/
-          cd build && bash -x getversion.sh q2admin >> versions
 
       - name: Build q2admin
         working-directory: build
@@ -49,17 +42,10 @@ jobs:
           repository: actionquake/q2admin
           path: build
 
-      - name: Change references from baseq2 to action and rename config.ex.lua
+      - name: Rename config.ex.lua
         working-directory: build/src
         run: |
-          sed -i 's/baseq2/action/g' *
           mv ../config.ex.lua ../config.lua
-
-      - name: Get version info for q2admin
-        id: version
-        run: |
-          cp config/build/getversion.sh build/
-          cd build && bash -x getversion.sh q2admin >> versions
 
       - name: Build q2admin
         working-directory: build
