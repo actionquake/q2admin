@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: actionquake/q2admin
+          ref: ${{ github.ref }}
           path: build
       
       - name: Set shortversion
@@ -75,6 +76,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: actionquake/q2admin
+          ref: ${{ github.ref }}
           path: build
 
       - name: Set shortversion
