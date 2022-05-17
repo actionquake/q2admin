@@ -15,6 +15,7 @@ jobs:
       
       - name: Set shortversion
         id: shortversion
+        working-directory: build
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
       - name: Rename config.ex.lua
@@ -78,6 +79,7 @@ jobs:
 
       - name: Set shortversion
         id: shortversion
+        working-directory: build
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
       - name: Rename config.ex.lua
