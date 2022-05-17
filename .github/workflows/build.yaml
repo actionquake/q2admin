@@ -1,0 +1,114 @@
+name: Linux q2admin (64-bit)
+
+on:
+  push:
+    branches: ["master", "aqtion"]
+
+jobs:
+  linux_x86_64_build_q2admin:
+    runs-on: [self-hosted, x86]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: actionquake/q2admin
+          ref: ${{ github.ref }}
+          path: build
+      
+      - name: Set shortversion
+        id: shortversion
+        working-directory: build
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Rename config.ex.lua
+        working-directory: build/src
+        run: |
+          mv ../config.ex.lua ../config.lua
+
+      - name: Build q2admin
+        working-directory: build
+        run: make -j2 V=1
+        env:
+          CC: "gcc"
+
+      - name: Generate archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: q2admin-lin-x86_64-library
+          path: |
+            build/gamex86_64.so
+            build/plugins
+            build/config.lua
+
+      - name: Zip contents for release
+        run: |
+          mkdir -p q2admin/action
+          cp build/gamex86_64.so q2admin/action/
+          cp -r build/plugins q2admin/
+          cp build/config.lua q2admin/
+          zip -r q2admin-lin-x86_64.zip q2admin
+
+      - name: Create release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: q2admin-${{ steps.shortversion.outputs.sha_short }}
+          tag_name: ${{ steps.shortversion.outputs.sha_short }}
+          #body_path: CHANGELOG.md
+          body: ${{steps.github_release.outputs.changelog}}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload dist tarball to release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          body_path: 
+          tag_name: ${{ steps.shortversion.outputs.sha_short }}
+          files: |
+            q2admin-lin-x86_64.zip
+
+  linux_arm64_build_q2admin:
+    runs-on: [self-hosted, ARM64]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: actionquake/q2admin
+          ref: ${{ github.ref }}
+          path: build
+
+      - name: Set shortversion
+        id: shortversion
+        working-directory: build
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Rename config.ex.lua
+        working-directory: build/src
+        run: |
+          mv ../config.ex.lua ../config.lua
+
+      - name: Build q2admin
+        working-directory: build
+        run: make -j2 V=1
+        env:
+          CC: "gcc"
+
+      - name: Zip contents for release
+        run: |
+          mkdir -p q2admin/action
+          cp build/gameaarch64.so q2admin/action/
+          cp -r build/plugins q2admin/
+          cp build/config.lua q2admin/
+          zip -r q2admin-lin-arm64.zip q2admin
+
+      - name: Upload dist tarball to release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          body_path: 
+          tag_name: ${{ steps.shortversion.outputs.sha_short }}
+          files: |
+            q2admin-lin-arm64.zip
