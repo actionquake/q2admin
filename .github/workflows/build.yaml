@@ -45,6 +45,12 @@ jobs:
           cp build/config.lua q2admin/
           zip -r q2admin-lin-x86_64.zip q2admin
 
+      - name: Create tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.shortversion.outputs.sha_short }}
+          message: "Latest release"
+
       - name: Upload dist tarball to release
         uses: softprops/action-gh-release@v1
         env:
