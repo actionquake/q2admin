@@ -40,7 +40,6 @@ local test = gi.cvar("asdf", "").string
 
 
 function override_dmflags()
-    --dmflags_bak = gi.cvar("dmflags_bak", "").string
     if dmflags_now ~= 8 then                            -- set dmflags to 8 if it isn't already
         gi.AddCommandString("sets dmflags 8\n")
         gi.dprintf("public.lua: setdmflags_dm() dmflags set to 8 (default: "..dmflags_bak..")\n")
