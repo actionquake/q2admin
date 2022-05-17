@@ -36,9 +36,6 @@ end
 local dmflags_now
 local msg = {}
 
-local test = gi.cvar("asdf", "").string
-
-
 function override_dmflags()
     if dmflags_now ~= 8 then                            -- set dmflags to 8 if it isn't already
         gi.AddCommandString("sets dmflags 8\n")
