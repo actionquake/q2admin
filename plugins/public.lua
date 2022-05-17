@@ -20,24 +20,27 @@ Function:
 ------------------------------
 
 --]]
-local version = "1.0"
+local version = "1.1"
 local delay = 5                                         -- delay before message and settings are run
 local teamplay = gi.cvar("teamplay", "").string         -- check if the server has cvar teamplay 1 or 0
 local sendMsg = false
 local changeDmflags
 local SendMsgAt
 local plrInBothTeams
-if dmflags_bak ~= '' or nil then
-    local dmflags_bak = gi.cvar("dmflags", "").string       -- store dmflagssetting
+
+local dmflags_bak = gi.cvar("dmflags_bak", "").string               -- tries to catch dmflags_bak
+if dmflags_bak == '' or nil then                                    -- if its not set
+    dmflags_bak = gi.cvar("dmflags", "").string                     -- it stores default dmflags instead
+    gi.AddCommandString("sets dmflags_bak "..dmflags_bak.."\n")     -- and then sets it as backup cvar
 end
 local dmflags_now
 local msg = {}
 
 local test = gi.cvar("asdf", "").string
-gi.dprintf("public.lua test = " .. test .. "\n")
+
 
 function override_dmflags()
-    dmflags_bak = gi.cvar("dmflags_bak", "").string
+    --dmflags_bak = gi.cvar("dmflags_bak", "").string
     if dmflags_now ~= 8 then                            -- set dmflags to 8 if it isn't already
         gi.AddCommandString("sets dmflags 8\n")
         gi.dprintf("public.lua: setdmflags_dm() dmflags set to 8 (default: "..dmflags_bak..")\n")
