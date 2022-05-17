@@ -43,7 +43,7 @@ jobs:
           cp build/gamex86_64.so q2admin/action/
           cp -r build/plugins q2admin/
           cp build/config.lua q2admin/
-          zip -r q2admin-lin-x86_64.zip action
+          zip -r q2admin-lin-x86_64.zip q2admin
 
       - name: Upload dist tarball to release
         uses: softprops/action-gh-release@v1
@@ -84,7 +84,7 @@ jobs:
           cp build/gameaarch64.so q2admin/action/
           cp -r build/plugins q2admin/
           cp build/config.lua q2admin/
-          zip -r q2admin-lin-arm64.zip action
+          zip -r q2admin-lin-arm64.zip q2admin
 
       - name: Upload dist tarball to release
         uses: softprops/action-gh-release@v1
