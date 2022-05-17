@@ -2,10 +2,7 @@ name: Linux q2admin (64-bit)
 
 on:
   push:
-    branches: master
-
-# on:
-#   workflow_dispatch:
+    branches: ["master", "aqtion"]
 
 jobs:
   linux_x86_64_build_q2admin:
