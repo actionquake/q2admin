@@ -17,7 +17,7 @@ _targetuserhost="someuser@aq2world.com"
 _targetdir="demos/aqtion"
 
 # Edit this for your demo list path (example: vrol/vrol_pickup_1)
-_servertargetdir="unknownserver/server"
+_servertargetdir="SERVERTARGETDIR"
 
 # if using scp to upload, set this as your private key file for PKI auth
 _rsakeylocation="~/.ssh/id_rsa"
