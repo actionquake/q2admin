@@ -8,13 +8,16 @@ method="$2"
 _file="action/demos/${mvd}"
 
 # If using s3cmd to upload, set this as your bucket name
-_s3bucket="yourdemobucket"
+_s3bucket="aq2world"
 
 # if using scp or sftp to upload, someuser@aq2world.com is the target user and host, change that to your needs.
 _targetuserhost="someuser@aq2world.com"
 
 # here, demos/ is the target directory, change that to your needs.
-_targetdir="demos/"
+_targetdir="demos/aqtion"
+
+# Edit this for your demo list path (example: vrol/vrol_pickup_1)
+_servertargetdir="unknownserver/server"
 
 # if using scp to upload, set this as your private key file for PKI auth
 _rsakeylocation="~/.ssh/id_rsa"
@@ -27,7 +30,7 @@ if [ -f "$_file" ]; then
   elif [ ${method} == "scp" ]; then
     scp -i ${_rsakeylocation} ${_file} ${_targetuserhost} &
   elif [ ${method} == "s3cmd" ]; then
-    s3cmd put $_file s3://${_s3bucket}/${_targetdir}/${_file} &
+    s3cmd put $_file s3://${_s3bucket}/${_targetdir}/${_servertargetdir}/${_file} &
   elif [ ${method} == "cp" ]; then
     cp ${_file} ${_targetdir} &
   else

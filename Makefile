@@ -42,6 +42,10 @@ ARCH=$(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc/ -e s/sparc64/sparc
 SHLIBEXT=so
 GAME_NAME=game$(ARCH).$(SHLIBEXT)
 
+ifdef LIN_32BIT
+CFLAGS += -m32
+endif
+
 MAKE_FLAGS = CC=$(CC) CFLAGS="$(CFLAGS) -DQ2A_VERSION=\\\"$(VERSION)\\\"" LDFLAGS="$(LDFLAGS)" GAME_NAME=$(GAME_NAME)
 
 all:
