@@ -29,8 +29,6 @@ _rsakeylocation="$HOME/.ssh/id_rsa"
 if [ -f "${_fullfilepath}" ]; then
   sleep 2
   s3cmd put "${_fullfilepath}" s3://${_s3bucket}/${_targetdir}/${_servertargetdir}/${_file} &
-  sleep 5
-  exit 0
 elif [ -z "${_file}" ]; then
   echo "$0 Error: $_file not found. Not transferring anything. :("
   exit 1
