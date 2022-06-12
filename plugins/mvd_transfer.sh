@@ -33,13 +33,14 @@ if [ -f "$_file" ]; then
     s3cmd put $_file s3://${_s3bucket}/${_targetdir}/${_servertargetdir}/${_file} &
   elif [ ${method} == "cp" ]; then
     cp ${_file} ${_targetdir} &
+  elif [ -z ${_file} ]; then
+    echo "$0 Error: '$_file' not found. Not transferring anything. :("
   else
     echo "The second argument to this script is your upload method,"
     echo "choose [ sftp | scp | s3cmd | cp ]"
     echo "And set your mvd_transfer.sh script correctly!"
     exit 1
-else
-  echo "$0 Error: '$_file' not found. Not transferring anything. :("
+  fi
 fi
 
 
