@@ -1,4 +1,4 @@
-local banned = { "player", "nameless jerk", "suislide", "unnamed" }
+local banned = { "player", "nameless jerk", "suislide", "unnamed", "nigger", "n1gg3r", "negro", "n3gro", "n3gr0", "hitler", "h1tl3r", "h1tler" }
 
 function ClientConnect(client, userinfo)
     local name = string.lower(Info_ValueForKey(userinfo, "name"))
