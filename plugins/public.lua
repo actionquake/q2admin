@@ -20,7 +20,7 @@ Function:
 ------------------------------
 
 --]]
-local version = "1.1"
+local version = "1.2"
 local delay = 5                                         -- delay before message and settings are run
 local teamplay = gi.cvar("teamplay", "").string         -- check if the server has cvar teamplay 1 or 0
 local sendMsg = false
@@ -36,7 +36,11 @@ end
 local dmflags_now
 local msg = {}
 
+local test = gi.cvar("asdf", "").string
+
+
 function override_dmflags()
+    --dmflags_bak = gi.cvar("dmflags_bak", "").string
     if dmflags_now ~= 8 then                            -- set dmflags to 8 if it isn't already
         gi.AddCommandString("sets dmflags 8\n")
         gi.dprintf("public.lua: setdmflags_dm() dmflags set to 8 (default: "..dmflags_bak..")\n")
@@ -76,7 +80,7 @@ function setdmflags()
             msg[2] = '* * * I\'ve disabled fall damage so you can fool around while you wait * * *\n'
             sendMsg = true
             SendMsgAt = os.time() + delay
-        elseif plrInBothTeams then
+        elseif plrInBothTeams and dmflags_now == "8" then
             restore_dmflags()
             for i=1, #msg do msg[i] = nil end -- empty msg table before storing new messages
             msg[1] = '* * * Both teams has players, ACTION * * *\n'
