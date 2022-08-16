@@ -1,9 +1,12 @@
 name: Q2Admin Release
 
-on:  
-  push:
-    tags:
-      - 'v*'
+# on:
+#   push:
+#     tags:
+#       - '*'
+
+on:
+  workflow_dispatch:
 
 jobs:
   generate_release:
@@ -25,8 +28,8 @@ jobs:
         with:
           draft: false
           prerelease: false
-          release_name: q2admin_${{ steps.version.outputs.version }}
-          tag_name: ${{github.ref_name}}
+          release_name: aq2-tng_${{ steps.version.outputs.version }}
+          tag_name: ${{ steps.version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -50,7 +53,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           body_path: 
-          tag_name: ${{github.ref_name}}
+          tag_name: ${{ steps.version.outputs.version }}
           files: |
             q2admin-lin-x86_64.zip
             q2admin-lin-arm64.zip

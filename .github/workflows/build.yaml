@@ -35,26 +35,11 @@ jobs:
       - name: Generate archive
         uses: actions/upload-artifact@v3
         with:
-          name: q2admin-lin-x86_64-library
+          name: q2admin-lin-x86_64
           path: |
             build/gamex86_64.so
             build/plugins
             build/config.lua
-
-      - name: Zip contents for release
-        run: |
-          mkdir -p q2admin/action
-          cp build/gamex86_64.so q2admin/action/
-          cp -r build/plugins q2admin/
-          cp build/config.lua q2admin/
-          zip -r q2admin-lin-x86_64.zip q2admin
-
-      - name: Generate archive
-        uses: actions/upload-artifact@v3
-        with:
-          name: q2admin-lin-x86_64
-          path: |
-            q2admin-lin-x86_64.zip
 
   linux_arm64_build_q2admin:
     runs-on: [self-hosted, ARM64]
@@ -81,17 +66,11 @@ jobs:
         env:
           CC: "gcc"
 
-      - name: Zip contents for release
-        run: |
-          mkdir -p q2admin/action
-          cp build/gameaarch64.so q2admin/action/
-          cp -r build/plugins q2admin/
-          cp build/config.lua q2admin/
-          zip -r q2admin-lin-arm64.zip q2admin
-
       - name: Generate archive
         uses: actions/upload-artifact@v3
         with:
           name: q2admin-lin-arm64
           path: |
-            q2admin-lin-arm64.zip
+            build/gameaarch64.so
+            build/plugins
+            build/config.lua
