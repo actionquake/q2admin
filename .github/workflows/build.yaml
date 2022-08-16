@@ -1,4 +1,4 @@
-name: Linux q2admin (64-bit)
+name: Q2Admin Build
 
 on:
   push:
@@ -56,29 +56,6 @@ jobs:
           path: |
             q2admin-lin-x86_64.zip
 
-      # - name: Create release
-      #   uses: actions/create-release@v1
-      #   id: create_release
-      #   with:
-      #     draft: false
-      #     prerelease: false
-      #     release_name: q2admin-${{ steps.shortversion.outputs.sha_short }}
-      #     tag_name: ${{ steps.shortversion.outputs.sha_short }}
-      #     #body_path: CHANGELOG.md
-      #     body: ${{steps.github_release.outputs.changelog}}
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-
-      # - name: Upload dist tarball to release
-      #   uses: softprops/action-gh-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-      #   with:
-      #     body_path: 
-      #     tag_name: ${{ steps.shortversion.outputs.sha_short }}
-      #     files: |
-      #       q2admin-lin-x86_64.zip
-
   linux_arm64_build_q2admin:
     runs-on: [self-hosted, ARM64]
     steps:
@@ -118,13 +95,3 @@ jobs:
           name: q2admin-lin-arm64
           path: |
             q2admin-lin-arm64.zip
-
-      # - name: Upload dist tarball to release
-      #   uses: softprops/action-gh-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-      #   with:
-      #     body_path: 
-      #     tag_name: ${{ steps.shortversion.outputs.sha_short }}
-      #     files: |
-      #       q2admin-lin-arm64.zip
