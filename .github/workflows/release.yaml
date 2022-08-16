@@ -1,4 +1,4 @@
-name: Q2admin Release
+name: Q2Admin Release
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: TNG Build
+name: Q2Admin Ruild
 
 on:
   push:
@@ -6,65 +6,92 @@ on:
   pull_request:
     branches: [master, aqtion]
 
-env:
-  LIN64_DIST_DIR: "linux-x64-q2a"
-  LINARM64_DIST_DIR: "linux-arm64-q2a"
 jobs:
-  x86_build_q2a:
+  linux_x86_64_build_q2admin:
     runs-on: [self-hosted, x86]
     steps:
       - uses: actions/checkout@v3
         with:
           repository: actionquake/q2admin
           ref: ${{ github.ref }}
-
+          path: build
+      
       - name: Set shortversion
         id: shortversion
         working-directory: build
-        run: echo "::set-output name=version::$(git rev-parse --short HEAD)"
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-      - name: Build Q2Admin (Linux 64-bit)
-        run: make -j4 V=1 && mv gamex86_64.dll ../gamex86_64.dll
-        env:
-
-      - name: Generate Linux x64 archive
-        uses: actions/upload-artifact@v3
-        with:
-          name: q2a-win-64
-          path: |
-            build/gamex86_64.dll
-            build/versions
-
-  arm64_build_tng:
-    runs-on: [self-hosted, ARM64]
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          repository: actionquake/aq2-tng
-          ref: ${{ github.ref }}
-          path: build
-
-      - uses: actions/checkout@v3
-        with:
-          repository: actionquake/distrib
-          path: config
-
-      - name: Get version info for tng
-        id: version
+      - name: Rename config.ex.lua
+        working-directory: build/src
         run: |
-          cp config/build/getversion.sh build/
-          cd build && bash -x getversion.sh tng >> versions
+          mv ../config.ex.lua ../config.lua
 
-      - name: Build TNG (Linux ARM64)
-        working-directory: build/source
-        run: make -j2 V=1 && mv gameaarch64.so ../gameaarch64.so
+      - name: Build q2admin
+        working-directory: build
+        run: make -j2 V=1
         env:
           CC: "gcc"
 
       - name: Generate archive
         uses: actions/upload-artifact@v3
         with:
-          name: tng-lin-arm64
+          name: q2admin-lin-x86_64-library
           path: |
-            build/gameaarch64.so
-            build/versions
+            build/gamex86_64.so
+            build/plugins
+            build/config.lua
+
+      - name: Zip contents for release
+        run: |
+          mkdir -p q2admin/action
+          cp build/gamex86_64.so q2admin/action/
+          cp -r build/plugins q2admin/
+          cp build/config.lua q2admin/
+          zip -r q2admin-lin-x86_64.zip q2admin
+
+      - name: Generate archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: q2admin-lin-x86_64
+          path: |
+            q2admin-lin-x86_64.zip
+
+  linux_arm64_build_q2admin:
+    runs-on: [self-hosted, ARM64]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: actionquake/q2admin
+          ref: ${{ github.ref }}
+          path: build
+
+      - name: Set shortversion
+        id: shortversion
+        working-directory: build
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Rename config.ex.lua
+        working-directory: build/src
+        run: |
+          mv ../config.ex.lua ../config.lua
+
+      - name: Build q2admin
+        working-directory: build
+        run: make -j2 V=1
+        env:
+          CC: "gcc"
+
+      - name: Zip contents for release
+        run: |
+          mkdir -p q2admin/action
+          cp build/gameaarch64.so q2admin/action/
+          cp -r build/plugins q2admin/
+          cp build/config.lua q2admin/
+          zip -r q2admin-lin-arm64.zip q2admin
+
+      - name: Generate archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: q2admin-lin-arm64
+          path: |
+            q2admin-lin-arm64.zip
