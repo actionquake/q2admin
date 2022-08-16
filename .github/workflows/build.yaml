@@ -1,0 +1,70 @@
+name: TNG Build
+
+on:
+  push:
+    branches: [master, aqtion]
+  pull_request:
+    branches: [master, aqtion]
+
+env:
+  LIN64_DIST_DIR: "linux-x64-q2a"
+  LINARM64_DIST_DIR: "linux-arm64-q2a"
+jobs:
+  x86_build_q2a:
+    runs-on: [self-hosted, x86]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: actionquake/q2admin
+          ref: ${{ github.ref }}
+
+      - name: Set shortversion
+        id: shortversion
+        working-directory: build
+        run: echo "::set-output name=version::$(git rev-parse --short HEAD)"
+
+      - name: Build Q2Admin (Linux 64-bit)
+        run: make -j4 V=1 && mv gamex86_64.dll ../gamex86_64.dll
+        env:
+
+      - name: Generate Linux x64 archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: q2a-win-64
+          path: |
+            build/gamex86_64.dll
+            build/versions
+
+  arm64_build_tng:
+    runs-on: [self-hosted, ARM64]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: actionquake/aq2-tng
+          ref: ${{ github.ref }}
+          path: build
+
+      - uses: actions/checkout@v3
+        with:
+          repository: actionquake/distrib
+          path: config
+
+      - name: Get version info for tng
+        id: version
+        run: |
+          cp config/build/getversion.sh build/
+          cd build && bash -x getversion.sh tng >> versions
+
+      - name: Build TNG (Linux ARM64)
+        working-directory: build/source
+        run: make -j2 V=1 && mv gameaarch64.so ../gameaarch64.so
+        env:
+          CC: "gcc"
+
+      - name: Generate archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: tng-lin-arm64
+          path: |
+            build/gameaarch64.so
+            build/versions
