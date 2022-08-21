@@ -9,7 +9,11 @@
 
 // game.h -- game dll information visible to server
 
+#ifdef USE_AQTION
+#define GAME_API_VERSION 4
+#else
 #define GAME_API_VERSION 3
+#endif
 
 // edict->svflags
 
