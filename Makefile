@@ -37,8 +37,9 @@ ifneq ($(PLATFORM),linux)
  #endif
 endif
 
+# Support for AQTION-specific items such as TNG AQTION_EXTENSION
 ifdef USE_AQTION
-CFLAGS += -DUSE_AQTION=1
+CFLAGS +=-DUSE_AQTION=1
 endif
 
 ARCH=$(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc/ -e s/sparc64/sparc/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/)
