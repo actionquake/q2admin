@@ -202,10 +202,13 @@ void ServerCommand (void)
 #ifdef USE_AQTION
 void* G_FetchGameExtension(char *name)
 {
+	void *ret;
 	if (hdll == NULL) return;
 
-	dllglobals->FetchGameExtension();
+	ret = dllglobals->FetchGameExtension(name);
 	copyDllInfo();
+
+	return ret;
 }
 #endif
 
