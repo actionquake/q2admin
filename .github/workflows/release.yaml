@@ -28,7 +28,7 @@ jobs:
         with:
           draft: false
           prerelease: false
-          release_name: aq2-tng_${{ steps.version.outputs.version }}
+          release_name: q2admin_${{ steps.version.outputs.version }}
           tag_name: ${{ steps.version.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
