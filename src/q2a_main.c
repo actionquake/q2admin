@@ -203,7 +203,7 @@ void ServerCommand (void)
 void* G_FetchGameExtension(char *name)
 {
 	void *ret;
-	if (hdll == NULL) return;
+	if (hdll == NULL) return NULL;
 
 	ret = dllglobals->FetchGameExtension(name);
 	copyDllInfo();
