@@ -199,6 +199,19 @@ void ServerCommand (void)
 	copyDllInfo();
 }
 
+#ifdef USE_AQTION
+void* G_FetchGameExtension(char *name)
+{
+	void *ret;
+	if (hdll == NULL) return NULL;
+
+	ret = dllglobals->FetchGameExtension(name);
+	copyDllInfo();
+
+	return ret;
+}
+#endif
+
 void game_bprintf(int printlevel, char *fmt, ...)
 {
 	va_list args;
@@ -337,6 +350,10 @@ game_export_t *GetGameAPI(game_import_t *import)
 	globals.RunFrame = RunFrame;
 	
 	globals.ServerCommand = ServerCommand;
+
+#ifdef USE_AQTION
+	globals.FetchGameExtension = G_FetchGameExtension;
+#endif
 
 	copyDllInfo();
 

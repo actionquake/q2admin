@@ -166,6 +166,10 @@ typedef struct
 	void (*AddCommandString) (char *text);
 	
 	void (*DebugGraph) (float value, int color);
+
+#ifdef USE_AQTION
+	void *(*CheckForExtension)(char *text);
+#endif
 } game_import_t;
 
 //
@@ -210,6 +214,10 @@ typedef struct
 	// The game can issue gi.argc() / gi.argv() commands to get the rest
 	// of the parameters
 	void  (*ServerCommand) (void);
+
+#ifdef USE_AQTION
+	void* (*FetchGameExtension)(char *name);
+#endif
 	
 	//
 	// global variables shared between game and server
