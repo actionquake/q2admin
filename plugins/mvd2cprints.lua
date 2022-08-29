@@ -10,7 +10,7 @@ e.g.
 
 local mvdfix = 1
 function q2a_load()
-    gi.AddCommandString("sets q2a_mvd2cprints "..mvdfix.."\n")
+    gi.AddCommandString("set q2a_mvd2cprints "..mvdfix.."\n")
 end
 
 function LogMessage(msg)
