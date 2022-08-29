@@ -19,7 +19,7 @@ function q2a_load()
 	gi.dprintf("q2client version "..version.." script loaded\n")
 end
 
-gi.AddCommandString("sets q2a_clip "..version.."\n")
+gi.AddCommandString("set q2a_clip "..version.."\n")
 
 local file
 local fileStr

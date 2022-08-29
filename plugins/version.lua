@@ -19,7 +19,7 @@ simple !version* script by TgT
 local version = "2.2"
 local word = "!versio.+"
 
-gi.AddCommandString("sets q2a_version "..version.."\n")
+gi.AddCommandString("set q2a_version "..version.."\n")
 gi.AddCommandString("addstuffcmd begin set version 0 u\n")
 
 function ClientCommand(client)

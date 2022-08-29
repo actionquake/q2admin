@@ -7,7 +7,7 @@
 -- 1.1 fixed sv softmap and sv stuffall and maybe lrcon status crash
 
 local version = "1.3"
-gi.AddCommandString("sets q2a_lrcon "..version.."\n")
+gi.AddCommandString("set q2a_lrcon "..version.."\n")
 
 local quit_on_empty 
 local cvars

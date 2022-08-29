@@ -61,7 +61,7 @@ end
 -- if we came to here, it's action!
 
 local version = "1.6hau"
-gi.AddCommandString("sets q2a_mvd "..version.."\n")
+gi.AddCommandString("set q2a_mvd "..version.."\n")
 
 local mvd_webby -- configure this one in the config.lua
 local exec_script_on_system_after_recording -- configure this one in the config.lua

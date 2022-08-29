@@ -7,7 +7,7 @@
 
 -- setup
 local version = "1.0"
-gi.AddCommandString("sets q2a_broadcast "..version.."\n")
+gi.AddCommandString("set q2a_broadcast "..version.."\n")
 gi.cvar_set("broadcast", "")
 
 

@@ -3,7 +3,7 @@
 ---
 
 local version = "1.0"
-gi.AddCommandString("sets q2a_cointoss "..version.."\n")
+gi.AddCommandString("set q2a_cointoss "..version.."\n")
 
 -- edit this (seconds)
 local flip_flood = 5

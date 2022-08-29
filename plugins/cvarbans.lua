@@ -44,7 +44,7 @@ local game = gi.cvar("game", "").string
 function wait (millisecond)
 end
  
-gi.AddCommandString("sets q2a_cvarbans "..version.."\n")
+gi.AddCommandString("set q2a_cvarbans "..version.."\n")
 
 function cvarbans_os_exec(script)
     os.execute(script)
