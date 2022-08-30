@@ -31,7 +31,7 @@ jobs:
         run: make -j2 V=1
         env:
           CC: "gcc"
-          USE_AQTION: "1"
+          USE_AQTION: "TRUE"
 
       - name: Generate archive
         uses: actions/upload-artifact@v3
@@ -66,7 +66,7 @@ jobs:
         run: make -j2 V=1
         env:
           CC: "gcc"
-          USE_AQTION: "1"
+          USE_AQTION: "TRUE"
 
       - name: Generate archive
         uses: actions/upload-artifact@v3
