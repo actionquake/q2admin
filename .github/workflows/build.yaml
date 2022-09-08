@@ -21,11 +21,6 @@ jobs:
         working-directory: build
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-      - name: Rename config.ex.lua
-        working-directory: build/src
-        run: |
-          mv ../config.ex.lua ../config.lua
-
       - name: Build q2admin
         working-directory: build
         run: make -j2 V=1
@@ -41,6 +36,7 @@ jobs:
             build/gamex86_64.so
             build/plugins
             build/config.lua
+            build/mmconfig.lua
 
   linux_arm64_build_q2admin:
     runs-on: [self-hosted, ARM64]
@@ -55,11 +51,6 @@ jobs:
         id: shortversion
         working-directory: build
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-
-      - name: Rename config.ex.lua
-        working-directory: build/src
-        run: |
-          mv ../config.ex.lua ../config.lua
 
       - name: Build q2admin
         working-directory: build
@@ -76,3 +67,4 @@ jobs:
             build/gameaarch64.so
             build/plugins
             build/config.lua
+            build/mmconfig.lua
