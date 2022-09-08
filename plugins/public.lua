@@ -31,7 +31,7 @@ local plrInBothTeams
 local dmflags_bak = gi.cvar("dmflags_bak", "").string               -- tries to catch dmflags_bak
 if dmflags_bak == '' or nil then                                    -- if its not set
     dmflags_bak = gi.cvar("dmflags", "").string                     -- it stores default dmflags instead
-    gi.AddCommandString("sets dmflags_bak "..dmflags_bak.."\n")     -- and then sets it as backup cvar
+    gi.AddCommandString("set dmflags_bak "..dmflags_bak.."\n")     -- and then sets it as backup cvar
 end
 local dmflags_now
 local msg = {}
