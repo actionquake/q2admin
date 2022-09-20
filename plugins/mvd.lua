@@ -24,6 +24,7 @@ Function:
 Fully working initial version by Paul Klumpp, 2012-11-12
 Please record your big changes here and increase version number:
 
+1.7: delay mvdstop for few frames so MVD2s dont get corrupted
 1.6: ability to give cvars as parameters to the exec_script
 1.5: exchanged all "say" with bprintf or dprintf
 1.4: added round_state check, added whether a cvar "q2a_mvd_autorecord" needs to be set so the recording happens runs (for lrcon usage)
@@ -60,7 +61,7 @@ if game ~= "action" or sv_mvd_enable == "0" or sv_mvd_enable == "" or sv_mvd_ena
 end
 -- if we came to here, it's action!
 
-local version = "1.6hau"
+local version = "1.7"
 gi.AddCommandString("set q2a_mvd "..version.."\n")
 
 local mvd_webby -- configure this one in the config.lua
@@ -166,7 +167,7 @@ function mvd_stop_and_delete()
     
     if mvd_records == true then
         if current_round_state == started_on_round_state then
-            gi.AddCommandString("mvdstop\n")
+	    gi.AddCommandString("mvdstop\n")
             mvd_records = false
             -- if file exists in game dir, delete it
             --$game demos/lala.mvd2.gz
@@ -213,8 +214,11 @@ end
 
 function mvd_stop()
     if mvd_records == true then
+	
+	local mvd_stop_wait = sv_fps * mvd_stop_delay
         gi.dprintf('mvd.lua mvd_stop(): stopping MVD recording...\n')
-        gi.AddCommandString("mvdstop\n")
+        gi.AddCommandString("wait "..mvd_stop_wait..";mvdstop\n")
+		
         mvd_records = false
         -- if file exists in game dir, advertise it:
         if file_exists(mvd_pathfile) then
