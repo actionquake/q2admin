@@ -21,11 +21,6 @@ jobs:
         working-directory: build
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-      - name: Rename config.ex.lua
-        working-directory: build/src
-        run: |
-          mv ../config.ex.lua ../config.lua
-
       - name: Build q2admin
         working-directory: build
         run: make -j2 V=1
@@ -55,12 +50,7 @@ jobs:
         id: shortversion
         working-directory: build
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-
-      - name: Rename config.ex.lua
-        working-directory: build/src
-        run: |
-          mv ../config.ex.lua ../config.lua
-
+        
       - name: Build q2admin
         working-directory: build
         run: make -j2 V=1
