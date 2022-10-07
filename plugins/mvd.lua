@@ -24,6 +24,7 @@ Function:
 Fully working initial version by Paul Klumpp, 2012-11-12
 Please record your big changes here and increase version number:
 
+1.7: delay mvdstop for few frames so MVD2s dont get corrupted
 1.6: ability to give cvars as parameters to the exec_script
 1.5: exchanged all "say" with bprintf or dprintf
 1.4: added round_state check, added whether a cvar "q2a_mvd_autorecord" needs to be set so the recording happens runs (for lrcon usage)
@@ -60,7 +61,7 @@ if game ~= "action" or sv_mvd_enable == "0" or sv_mvd_enable == "" or sv_mvd_ena
 end
 -- if we came to here, it's action!
 
-local version = "1.6hau"
+local version = "1.7"
 gi.AddCommandString("set q2a_mvd "..version.."\n")
 
 local mvd_webby -- configure this one in the config.lua
@@ -68,6 +69,8 @@ local exec_script_on_system_after_recording -- configure this one in the config.
 local exec_script_cvars_as_parameters -- configure this one in the config.lua
 local needs_cvar_q2a_mvd_autorecord -- configure this one in the config.lua
 
+local mvd_stop_delay = 3
+local sv_fps = gi.cvar("sv_fps",'').string
 
 -- state vars
 local teams_ready = {}
@@ -213,8 +216,11 @@ end
 
 function mvd_stop()
     if mvd_records == true then
+
+	local mvd_stop_wait = sv_fps * mvd_stop_delay
         gi.dprintf('mvd.lua mvd_stop(): stopping MVD recording...\n')
-        gi.AddCommandString("mvdstop\n")
+        gi.AddCommandString("wait "..mvd_stop_wait..";mvdstop\n"
+			
         mvd_records = false
         -- if file exists in game dir, advertise it:
         if file_exists(mvd_pathfile) then
@@ -275,7 +281,7 @@ function q2a_load(config)
         gi.AddCommandString('set sv_mvd_begincmd "putaway; h_cycle;"\n')
         gi.AddCommandString('set sv_mvd_scorecmd "h_cycle;"\n')
         gi.AddCommandString('alias h_cycle "h_cycle_sb; h_cycle_sb; h_cycle_sb; h_cycle_sb; h_cycle_sb;"\n')
-        gi.AddCommandString('alias h_cycle_sb "wait; help; wait 75; help; wait 100; putaway;"\n')
+        gi.AddCommandString('alias h_cycle_sb "wait; help; wait 45; help; wait 45; putaway;"\n')
         gi.AddCommandString('set mvd_default_map wfall\n')
     end
 end
