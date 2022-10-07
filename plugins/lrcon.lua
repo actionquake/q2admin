@@ -2,15 +2,17 @@
 -- a very limited rcon by hifi <3  version 1.0
 --
 -- changes by TgT
+-- 1.4 ability to change a server configmode
 -- 1.3 Do not allow ghosts to use lrcon, they crash script
 -- 1.2 disable gamemap (causing crashes) and make sure sv_allow_map is 1
 -- 1.1 fixed sv softmap and sv stuffall and maybe lrcon status crash
 
-local version = "1.3"
+local version = "1.4"
 gi.AddCommandString("set q2a_lrcon "..version.."\n")
 
-local quit_on_empty 
+local quit_on_empty
 local cvars
+local modes
 
 local claimer = nil
 local claimer_store = nil
@@ -22,6 +24,7 @@ gi.cvar_set("sv_allow_map", "1")
 function q2a_load(config)
     quit_on_empty = config.quit_on_empty
     cvars = config.cvars
+    modes = config.modes
 
     if quit_on_empty == nil or cvars == nil then
         gi.dprintf("Warning: lrcon config is invalid\n")
@@ -77,6 +80,7 @@ function ClientCommand(client)
                 gi.cprintf(client, PRINT_HIGH, ' lrcon status            - get client status information\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon kick <id>         - kick a player\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon map <mapname>     - change map\n')
+                gi.cprintf(client, PRINT_HIGH, ' lrcon mode <mode|list>  - change server config\n')
                 --gi.cprintf(client, PRINT_HIGH, ' lrcon gamemap <mapname> - change map (keeping state)\n')
                 return true
             else
@@ -150,7 +154,7 @@ function ClientCommand(client)
                                 	gi.AddCommandString('sv stuffcmd all '..rest)
                                 else
                                 	gi.AddCommandString('sv stuffcmd '..param..' '..rest)
-	
+
                                 end
                             end
                             return true
@@ -166,6 +170,21 @@ function ClientCommand(client)
                         return true
                     end
 
+                    if cmd == 'mode' then
+                        if param == nil then
+                            gi.cprintf(client, PRINT_HIGH, 'Usage: mode <mode|list>\n')
+                        elseif param == 'list' then
+                            for k,v in pairs(modes) do
+                                gi.cprintf(client,PRINT_HIGH, "%s\n", v)
+                            end
+                        else
+                            gi.AddCommandString('exec mode_'..param)
+                            gi.bprintf(PRINT_HIGH, '%s changed server settings: mode "%s"\n', ex.players[client].name, param)
+                            gi.cprintf(client,PRINT_HIGH, "Server needs to be restarted, change the map.\n")
+                        end
+                        return true
+                    end
+                    
                     --[[if cmd == 'gamemap' then
                         if param == nil then
                             gi.cprintf(client, PRINT_HIGH, 'Usage: gamemap <mapname>\n')
