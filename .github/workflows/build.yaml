@@ -21,6 +21,10 @@ jobs:
         working-directory: build
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
+      - name: luacheck - check for errors
+        working-directory: build 
+        run: luacheck plugins/*.lua --ignore 0 || if [ $? -eq 2 ]; then false else true; fi
+
       - name: Build q2admin
         working-directory: build
         run: make -j2 V=1
@@ -50,6 +54,10 @@ jobs:
         id: shortversion
         working-directory: build
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - name: luacheck - check for errors
+        working-directory: build 
+        run: luacheck plugins/*.lua --ignore 0 || if [ $? -eq 2 ]; then false else true; fi
         
       - name: Build q2admin
         working-directory: build
