@@ -219,7 +219,7 @@ function mvd_stop()
 
 	local mvd_stop_wait = sv_fps * mvd_stop_delay
         gi.dprintf('mvd.lua mvd_stop(): stopping MVD recording...\n')
-        gi.AddCommandString("wait "..mvd_stop_wait..";mvdstop\n"
+        gi.AddCommandString("wait "..mvd_stop_wait..";mvdstop\n")
 			
         mvd_records = false
         -- if file exists in game dir, advertise it:
