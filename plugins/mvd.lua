@@ -55,8 +55,8 @@ plugins = {
 local game = gi.cvar("game", "").string
 local sv_mvd_enable = gi.cvar("sv_mvd_enable", "").string
 
-if game ~= "action" or sv_mvd_enable == "0" or sv_mvd_enable == "" or sv_mvd_enable == nil then
-    gi.dprintf("mvd.lua WARNING: This script only loads when game is 'action' and when sv_mvd_enable is '1' or '2'!\n")
+if sv_mvd_enable == "0" or sv_mvd_enable == "" or sv_mvd_enable == nil then
+    gi.dprintf("mvd.lua WARNING: This script only loads when sv_mvd_enable is '1' or '2'!\n")
     return 0
 end
 -- if we came to here, it's action!
