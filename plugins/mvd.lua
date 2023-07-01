@@ -53,6 +53,7 @@ plugins = {
 --]]
 
 local game = gi.cvar("game", "").string
+local round_begin = gi.cvar("round_begin", "").string
 local sv_mvd_enable = gi.cvar("sv_mvd_enable", "").string
 
 if sv_mvd_enable == "0" or sv_mvd_enable == "" or sv_mvd_enable == nil then
@@ -329,7 +330,7 @@ function LogMessage(msg)
         return true
     end
     
-    local match = string.match(msg, "The round will begin in 20 seconds!")
+    local match = string.match(msg, "The round will begin in "..round_begin.." seconds!")
     if match ~= nil then
         -- if mvd not recording then start mvd record
         if mvd_records == false then
