@@ -70,7 +70,7 @@ local exec_script_on_system_after_recording -- configure this one in the config.
 local exec_script_cvars_as_parameters -- configure this one in the config.lua
 local needs_cvar_q2a_mvd_autorecord -- configure this one in the config.lua
 
-local mvd_stop_delay = 3
+local mvd_stop_delay = 1
 local sv_fps = gi.cvar("sv_fps",'').string
 
 -- state vars
