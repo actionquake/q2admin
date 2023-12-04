@@ -1,19 +1,23 @@
 local version = "1.0"
 gi.AddCommandString("set q2a_news "..version.."\n")
-
+local game = gi.cvar("game", "").string
 local broadcasts = {}
 
 function wait (millisecond)
 end
 
+function load_news()
+    for line in io.lines('action/news.txt') do
+        table.insert(broadcasts, line)
+    end
+end
+
 function news_os_exec(script)
     os.execute(script)
     wait(1000) -- wait 1s to make sure download is complete and went smooth
-    for line in io.lines('action/broadcasts.txt') do
-        table.insert(broadcasts, line)
-    end
     local last_update = os.date()
     gi.AddCommandString('sets news_update '..last_update..'\n') -- write update time to cvar
+    load_news()
 end
 
 function q2a_load(config)
@@ -30,9 +34,9 @@ function q2a_load(config)
       return 0
     end
   
-    gi.dprintf("news.lua q2a_load(): Checking/Downloading news... ")
-    news_update = root_dir..'plugins/news_update.sh  "'..url..'" '
-    news_os_exec(cvarbans_update) -- check for updated cvarbanlist on load
+    gi.dprintf("news.lua q2a_load(): Checking/Downloading news...\n")
+    news_update = root_dir..'plugins/news_update.sh  "'..url..'" "'..game..'"'
+    news_os_exec(news_update) -- check for updated news on load
 end
 
 
