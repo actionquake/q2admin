@@ -3,6 +3,9 @@ gi.AddCommandString("set q2a_news "..version.."\n")
 
 local broadcasts = {}
 
+function wait (millisecond)
+end
+
 function news_os_exec(script)
     os.execute(script)
     wait(1000) -- wait 1s to make sure download is complete and went smooth
