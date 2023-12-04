@@ -18,10 +18,10 @@ cd ../$gamedir/   # cd back and to game dir
 
 if [[ "$url" == *"githubusercontent"* ]]; then
   # not using -N switch for wget since github does not support "last update" parameter, the file will be downloaded on every check, wich is not optimal
-  wget -O $filename $url 2>&1 | tee | grep -E 'Omitting download|‘h_cvarbans.cfg’ saved|ERROR 404: Not Found'
+  wget -O $filename $url 2>&1 | tee | grep -E 'Omitting download|"h_cvarbans.cfg" saved|ERROR 404: Not Found'
 else
   # using -N switch for wget since the file os not hosted on github, best solution, since file will only be downloaded if changed
-  wget $usaragent -N $url 2>&1 | tee | grep -E 'Omitting download|‘h_cvarbans.cfg’ saved|ERROR 404: Not Found'
+  wget $usaragent -N $url 2>&1 | tee | grep -E 'Omitting download|"h_cvarbans.cfg" saved|ERROR 404: Not Found'
 fi
 
 exit
