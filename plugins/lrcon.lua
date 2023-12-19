@@ -35,7 +35,7 @@ end
 
 function q2a_unload()
     if claimer then
-        gi.cvar_forceset('lua_q2a_lrcon_storage', ex.players[claimer].name..ex.players[claimer].ip)
+        gi.cvar_forceset('lua_q2a_lrcon_storage', ex.players[claimer].name)
     else
         gi.cvar_forceset('lua_q2a_lrcon_storage', '')
     end
