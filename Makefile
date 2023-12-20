@@ -49,6 +49,11 @@ ifneq (,$(findstring __arm,__$(shell uname -m)))
 ARCH=arm
 endif
 
+# If machine is aarch64 (64-bit ARM architecture) make gamearm64.so.
+ifneq (,$(findstring aarch64,$(shell uname -m)))
+ARCH=arm64
+endif
+
 SHLIBEXT=so
 GAME_NAME=game$(ARCH).$(SHLIBEXT)
 
