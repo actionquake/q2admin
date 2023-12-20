@@ -44,6 +44,11 @@ endif
 
 ARCH=$(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc/ -e s/sparc64/sparc/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/)
 
+# If machine starts with arm (any 32-bit Raspberry Pi) make gamearm.so.
+ifneq (,$(findstring __arm,__$(shell uname -m)))
+ARCH=arm
+endif
+
 SHLIBEXT=so
 GAME_NAME=game$(ARCH).$(SHLIBEXT)
 
