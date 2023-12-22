@@ -35,7 +35,7 @@ end
 
 function q2a_unload()
     if claimer then
-        gi.cvar_forceset('lua_q2a_lrcon_storage', ex.players[claimer].name..ex.players[claimer].ip)
+        gi.cvar_forceset('lua_q2a_lrcon_storage', ex.players[claimer].name)
     else
         gi.cvar_forceset('lua_q2a_lrcon_storage', '')
     end
@@ -49,7 +49,8 @@ function ClientCommand(client)
             gi.cprintf(client, PRINT_HIGH, 'Type "lrcon help" for more information.\n')
         else
             local plr = ex.players[client]
-            local ip = string.match(plr.ip, '^([^:]+)')
+            -- This is unused and causing problems with aprq2 clients
+            --local ip = string.match(plr.ip, '^([^:]+)')
             local now = os.time()
             local cmd = gi.argv(2)
 
@@ -121,11 +122,14 @@ function ClientCommand(client)
 			gi.cprintf(client, PRINT_HIGH, 'num  name             address\n')
 			gi.cprintf(client, PRINT_HIGH, '---  ---------------  ---------------\n')
 
-			for i,plr in pairs(ex.players) do
-				if plr ~= nil then
-                            		gi.cprintf(client, PRINT_HIGH, "%3d  %-15s  %s\n", i, plr.name, string.match(plr.ip, '^([^:]+)'))
-                            	end
-			end
+            for i, plr in pairs(ex.players) do
+                if plr ~= nil and plr.ip ~= nil then
+                    gi.cprintf(client, PRINT_HIGH, "%3d  %-15s  %s\n", i, plr.name, string.match(plr.ip, '^([^:]+)'))
+                elseif plr ~= nil then
+                    print("APRQ2 client detected, cannot print status list due to crash bug")
+                    gi.cprintf(client, PRINT_HIGH, "%3d  %-15s  %s\n", i, plr.name, "IP not available")
+                end
+            end
                         return true
                     end
 
