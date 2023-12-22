@@ -71,6 +71,6 @@ jobs:
         with:
           name: q2admin-lin-arm64
           path: |
-            build/gameaarch64.so
+            build/gamearm64.so
             build/plugins
             build/config.lua
