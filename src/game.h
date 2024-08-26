@@ -170,6 +170,18 @@ typedef struct
 #ifdef USE_AQTION
 	void *(*CheckForExtension)(char *text);
 #endif
+	bsp_t* (*Bsp)(void);
+    nav_t* (*Nav)(void);
+#if DEBUG_DRAWING
+    debug_draw_t* (*Draw)(void);
+#endif
+    surface_data_t* (*SurfaceData)(void);
+
+    void (*SV_BotUpdateInfo)(char* name, int ping, int score);
+    void (*SV_BotConnect)(char* name);
+    void (*SV_BotDisconnect)(char* name);
+    void (*SV_BotClearClients)(void);
+
 } game_import_t;
 
 //
@@ -218,7 +230,6 @@ typedef struct
 #ifdef USE_AQTION
 	void* (*FetchGameExtension)(char *name);
 #endif
-	
 	//
 	// global variables shared between game and server
 	//

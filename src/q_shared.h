@@ -27,6 +27,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 /*
 #include <assert.h>
 #include <math.h>
@@ -74,6 +75,30 @@ typedef enum{false, true} qboolean;
 #define MAX_SOUNDS   256  // so they cannot be blindly increased
 #define MAX_IMAGES   256
 #define MAX_ITEMS   256
+
+//
+// config strings are a general means of communication from
+// the server to all connected clients.
+// Each config string can be at most MAX_QPATH characters.
+//
+#define CS_NAME    0
+#define CS_CDTRACK   1
+#define CS_SKY    2
+#define CS_SKYAXIS   3  // %f %f %f format
+#define CS_SKYROTATE  4
+#define CS_STATUSBAR  5  // display program string
+
+#define CS_MAXCLIENTS  30
+#define CS_MAPCHECKSUM  31  // for catching cheater maps
+
+#define CS_MODELS   32
+#define CS_SOUNDS   (CS_MODELS+MAX_MODELS)
+#define CS_IMAGES   (CS_SOUNDS+MAX_SOUNDS)
+#define CS_LIGHTS   (CS_IMAGES+MAX_IMAGES)
+#define CS_ITEMS   (CS_LIGHTS+MAX_LIGHTSTYLES)
+#define CS_PLAYERSKINS  (CS_ITEMS+MAX_ITEMS)
+#define MAX_CONFIGSTRINGS (CS_PLAYERSKINS+MAX_CLIENTS)
+
 
 
 // game print flags
@@ -318,6 +343,590 @@ cvar_t;
 
 #endif  // CVAR
 
+// ReKTeK Bots Struct add
+#define     MAX_TEXNAME     32
+#define     MAX_LIGHTMAPS    4
+
+typedef vec_t vec2_t[2];
+
+typedef struct list_s {
+    struct list_s   *next; // head
+    struct list_s   *prev; // tail
+} list_t;
+
+typedef struct {
+    void    *base;
+    size_t  maxsize;
+    size_t  cursize;
+    size_t  mapped;
+} memhunk_t;
+
+typedef struct {
+    uint32_t    numclusters;
+    uint32_t    bitofs[][2];    // bitofs[numclusters][2]
+} dvis_t;
+
+typedef struct csurface_s
+	{
+		char  name[16];
+		int   flags;
+		int   value;
+	}
+csurface_t;
+
+// plane_t structure
+// !!! if this is changed, it must be changed in asm code too !!!
+typedef struct cplane_s
+	{
+		vec3_t normal;
+		float dist;
+		byte type;   // for fast side tests
+		byte signbits;  // signx + (signy<<1) + (signz<<1)
+		byte pad[2];
+	}
+cplane_t;
+
+typedef struct {
+    vec3_t      point;
+} mvertex_t;
+
+typedef struct {
+    uint32_t    v[2];
+} medge_t;
+
+typedef struct {
+    uint32_t    edge: 31;
+    uint32_t    vert:  1;
+} msurfedge_t;
+
+typedef struct {
+    uint32_t point[3];
+    uint32_t children[8];
+} lightgrid_node_t;
+
+typedef struct {
+    byte style;
+    byte rgb[3];
+} lightgrid_sample_t;
+
+typedef struct {
+    uint32_t mins[3];
+    uint32_t size[3];
+    uint32_t numsamples;
+    uint32_t firstsample;
+} lightgrid_leaf_t;
+
+typedef struct {
+    vec3_t scale;
+    vec3_t mins;
+    uint32_t size[3];
+    uint32_t numstyles;
+    uint32_t numnodes;
+    uint32_t numleafs;
+    uint32_t numsamples;
+    uint32_t rootnode;
+    lightgrid_node_t *nodes;
+    lightgrid_leaf_t *leafs;
+    lightgrid_sample_t *samples;
+} lightgrid_t;
+
+
+
+typedef struct mtexinfo_s {  // used internally due to name len probs //ZOID
+    csurface_t          c;
+    char                name[MAX_TEXNAME];
+
+#if USE_REF
+    vec3_t              axis[2];
+    vec2_t              offset;
+    struct image_s      *image; // used for texturing
+    struct mtexinfo_s   *next; // used for animation
+    int                 numframes;
+#endif
+#if USE_CLIENT
+    char                material[16];
+    int                 step_id;
+#endif
+} mtexinfo_t;
+
+typedef struct mface_s {
+    msurfedge_t     *firstsurfedge;
+    cplane_t        *plane;
+
+    byte            *lightmap;
+    byte            styles[MAX_LIGHTMAPS];
+    byte            numstyles;
+
+    byte            hash;
+    uint16_t        numsurfedges;
+
+    mtexinfo_t      *texinfo;
+    vec3_t          lm_axis[2];
+    vec2_t          lm_offset;
+    vec2_t          lm_scale;
+    uint16_t        lm_width;
+    uint16_t        lm_height;
+
+    int             texnum[3]; // FIXME MAX_TMUS
+    int             drawflags; // DSURF_PLANEBACK, etc
+    int             statebits;
+    int             firstvert;
+    uint16_t        light_s, light_t;
+    float           stylecache[MAX_LIGHTMAPS];
+
+    unsigned        drawframe;
+    unsigned        dlightframe;
+    uint64_t        dlightbits;
+
+    struct lightmap_s   *light_m;
+    struct entity_s     *entity;
+    struct mface_s      *next;
+} mface_t;
+
+typedef struct mnode_s {
+    /* ======> */
+    cplane_t            *plane;     // never NULL to differentiate from leafs
+#if USE_REF
+    vec3_t              mins;
+    vec3_t              maxs;
+
+    unsigned            visframe;
+#endif
+    struct mnode_s      *parent;
+    /* <====== */
+
+    struct mnode_s      *children[2];
+
+#if USE_REF
+    int                 numfaces;
+    mface_t             *firstface;
+#endif
+} mnode_t;
+
+typedef struct {
+    cplane_t            *plane;
+    mtexinfo_t          *texinfo;
+} mbrushside_t;
+
+typedef struct {
+    int                 contents;
+    int                 numsides;
+    mbrushside_t        *firstbrushside;
+    unsigned            checkcount;         // to avoid repeated testings
+} mbrush_t;
+
+typedef struct {
+    /* ======> */
+    cplane_t            *plane;     // always NULL to differentiate from nodes
+#if USE_REF
+    vec3_t              mins;
+    vec3_t              maxs;
+
+    unsigned            visframe;
+#endif
+    struct mnode_s      *parent;
+    /* <====== */
+
+    int             contents;
+    int             cluster;
+    int             area;
+    int             numleafbrushes;
+    mbrush_t        **firstleafbrush;
+#if USE_REF
+    mface_t         **firstleafface;
+    int             numleaffaces;
+#endif
+} mleaf_t;
+
+typedef struct {
+    unsigned    portalnum;
+    unsigned    otherarea;
+} mareaportal_t;
+
+typedef struct {
+    int             numareaportals;
+    mareaportal_t   *firstareaportal;
+    unsigned        floodvalid;
+} marea_t;
+
+typedef struct {
+    vec3_t          mins, maxs;
+    vec3_t          origin;        // for sounds or lights
+    mnode_t         *headnode;
+
+#if USE_REF
+    float           radius;
+
+    int             numfaces;
+    mface_t         *firstface;
+
+    unsigned        drawframe;
+#endif
+} mmodel_t;
+
+// typedef struct mtexinfo_s {  // used internally due to name len probs //ZOID
+//     csurface_t          c;
+//     char                name[MAX_TEXNAME];
+
+// #if USE_REF
+//     vec3_t              axis[2];
+//     vec2_t              offset;
+//     struct image_s      *image; // used for texturing
+//     struct mtexinfo_s   *next; // used for animation
+//     int                 numframes;
+// #endif
+// #if USE_CLIENT
+//     char                material[16];
+//     int                 step_id;
+// #endif
+// } mtexinfo_t;
+
+
+typedef struct {
+    list_t      entry;
+    int         refcount;
+
+    unsigned    checksum;
+
+    memhunk_t   hunk;
+
+    int             numbrushsides;
+    mbrushside_t    *brushsides;
+
+    int             numtexinfo;
+    mtexinfo_t      *texinfo;
+
+    int             numplanes;
+    cplane_t        *planes;
+
+    int             numnodes;
+    mnode_t         *nodes;
+
+    int             numleafs;
+    mleaf_t         *leafs;
+
+    int             numleafbrushes;
+    mbrush_t        **leafbrushes;
+
+    int             nummodels;
+    mmodel_t        *models;
+
+    int             numbrushes;
+    mbrush_t        *brushes;
+
+    int             numvisibility;
+    int             visrowsize;
+    dvis_t          *vis;
+
+    int             numentitychars;
+    char            *entitystring;
+
+    int             numareas;
+    marea_t         *areas;
+
+    int             numportals;     // largest portal number used plus one
+    int             numareaportals; // size of the array below
+    mareaportal_t   *areaportals;
+
+    int             numfaces;
+    mface_t         *faces;
+
+    int             numleaffaces;
+    mface_t         **leaffaces;
+
+    int             numlightmapbytes;
+    byte            *lightmap;
+
+    int             numvertices;
+    mvertex_t       *vertices;
+
+    int             numedges;
+    medge_t         *edges;
+
+    int             numsurfedges;
+    msurfedge_t     *surfedges;
+
+//#if USE_REF
+    lightgrid_t     lightgrid;
+
+    qboolean            lm_decoupled;
+//#endif
+    qboolean            extended;
+
+    char            name[1];
+} bsp_t;
+
+#define MAX_FACE_VERTS 64
+#define MAX_FACE_CONNECTIONS 1024 //(MAX_SAVED_VERTS / 2)
+
+// Face connection types - denotes how faces are connected to each other, and how the bot should move between them
+typedef enum face_connection_type_e {
+    FACE_CONN_NONE,         // No connection
+    FACE_CONN_DIRECT,       // Two faces directly touch by a shared edge
+    FACE_CONN_INDIRECT,     // Two faces are indirectly connected due to gaps between the two faces (such as the urban jump from roof to roof)
+    FACE_CONN_LEDGE,        // The current edge is a ledge with a drop that will cause fall damage or death
+    FACE_CONN_WATER,        // The current edge is a ledge that drops to water below
+    FACE_CONN_DROP,		    // From the current face drop to the face below
+    FACE_CONN_STEP,         // Face is step height (up or down - bidirectional)
+    FACE_CONN_JUMP          // Jump to face (up or down - bidirectional)
+} face_connection_type_t;
+
+// Face movement types - gives an indication as to the type of position this leads to
+typedef enum face_move_type_e {
+    FACE_MOVE_NONE,         // No type
+    FACE_MOVE_SAFE,         // Safe move: this interconnects with flat ground
+    FACE_MOVE_CAUTION,      // Safe move: this interconnects to a step/stairs, drop (only down - one way), or jump (up or down - bidirectional), drop into water below
+    FACE_MOVE_STOP,         // Caution move: this ends at dangerous ledge (damage or death), or possibly a good sniping spot :)
+    FACE_MOVE_GROUND,       // The next interconnect is the same height
+    FACE_MOVE_UP,           // The next interconnect is above
+    FACE_MOVE_DOWN          // The next interconnect is below
+} face_move_type_t;
+
+// Edge offset types - centered, offset along its length, or moved inward (i.e. away from a wall)
+typedef enum edge_offset_type_e {
+    EDGE_OFFSET_NONE,       // No type
+    EDGE_OFFSET_CENTER,     // Offset position: center edge
+    EDGE_OFFSET_LENGTH,     // Offset position: along its length (somewhere between the two vectors (v1 & v2) that constitute an edge)
+    EDGE_OFFSET_INNER       // Offset position: moved inward (inside the face), possibly to move away from a wall or obstacle
+} edge_offset_type_t;
+
+// The type of face
+typedef enum facetype_e {
+    FACETYPE_NONE = 0,      // No type
+    FACETYPE_IGNORED = 1,   // Ignored surface (could be a tiny face, or malformed face, etc)
+    FACETYPE_WALK = 2,      // Walkable surface
+    FACETYPE_TINYWALK = 4,  // Walkable tiny surface
+    FACETYPE_WALL = 8,      // Wall surface
+    FACETYPE_LADDER = 16,    // Ladder surface
+    FACETYPE_SKY = 32,       // Sky surface
+    FACETYPE_ROOF = 64,      // Roof surface
+    FACETYPE_WATER = 128,     // Water surface
+    FACETYPE_DAMAGE = 256     // Hurt, lava, acid, etc.
+} facetype_t;
+
+// Nodes or locations within the face
+typedef struct surface_node_s
+{
+    qboolean init;      // 
+    int type;           // Face connection type (enum face_connection_type_t)
+    int move;           // Face movement type (enum face_move_type_t)
+    int facenum;        // The remote face number (if any) that is connected to this face
+    float dropheight;   // If the edge is a ledge, this is its drop height, otherwise 0
+    vec3_t start;       // The start position of the connection point within the face (such as the center of the polygon)
+    vec3_t end;         // The end position of the connection point (can be outside of the face)
+} surface_node_t;
+
+// Ledge data
+typedef struct ledge_data_s
+{
+    qboolean is_ledge; // Flag if the edge is a ledge
+    qboolean is_wall; // Flag if edge is a wall
+    vec3_t normal; // Surface normal that was hit
+    vec3_t v1;      // Adjusted edge v1
+    vec3_t v2;      // Adjusted edge v2
+    vec3_t startpos; // Start location
+    vec3_t endpos; // Hit location
+    float height; // Height difference from ledge to endpos, if zero then no ledge
+
+    // Debug
+    byte hit_side;      // If trace hit: none=0, left=1, right=2
+    vec3_t left_start;  // Start trace left
+    vec3_t left_end;    // End trace left
+    vec3_t right_start; // Start trace right
+    vec3_t right_end;   // End trace right
+} ledge_data_t;
+
+
+typedef struct surface_data_s
+{
+    // ========================================================
+    // Raw BSP Data
+    // Extracted from the BSP struct - Do not modify!
+    // ========================================================
+
+    int drawflags; // Drawflags -- DSURF_PLANEBACK
+    char texture[MAX_TEXNAME]; // Texture name
+    vec3_t normal; // Surface normal
+    int contents; // Contents of the surface
+    #if USE_REF
+    mface_t* surf; // Surface pointer to the BSP struct
+    #endif
+    // Vertex
+    vec3_t first_vert; // First vert - used when calculating triangles (i.e. gl_showtris "1")
+    int num_verts; // Number of verts (edges)
+    vec3_t verts[MAX_FACE_VERTS]; // Verts (inc lateral)
+
+    // Positions
+    vec3_t edge_center[MAX_FACE_CONNECTIONS]; // The center of each edge
+    vec3_t edge_center_stepsize[MAX_FACE_CONNECTIONS]; // The edge_center moved up by 18 (STEPSIZE) units
+
+    // ========================================================
+    // End of Raw BSP Data
+    // ========================================================
+    
+
+    // ========================================================
+    // Custom BSP Data - Safe to modify
+    // ========================================================
+
+    short int facenum;	// The set of surfaces we've chosen to work with, i.e. walls are generally excluded, etc
+    facetype_t face_type; // The type of face, walkable, wall, ladder, water, damage...
+
+    // Aligned verts are connected edges that are parallel (same direction) combined into a single edge to form a straight line
+    // Essentially we're removing all the inner verts, leaving only the outer verts, and thus forming a straight line between them
+    // We do this so we can calculate such things as finding the center of a polygon
+    // 
+    // Normal edges:
+    // v1, v2, v3, v4 are vertices
+    // edge1 is parallel to edge2
+    // 
+    // v1     edge1      v2 v3     edge2    v4                      
+    // | ----------------- | ----------------|
+    //
+    // Combined edges:
+    // v2 and v3 are removed and edge1 and edge2 are combined into a single edge
+    // 
+    // v1                edge1               v2                      
+    // | ------------------------------------|
+    //
+    int num_aligned_verts; // Number of aligned verts 
+    vec3_t aligned_verts[MAX_FACE_VERTS]; // Aligned verts
+
+    // Modified Edges
+    // This will either be the center of the edge, or failing that a position somewhere along the edge that fits the player hitbox (because sometimes the center edge cannot fit the player hitbox due to other brushes obstructing)
+    vec3_t edge_valid_pos[MAX_FACE_CONNECTIONS]; // Valid player hitbox position along the edge
+    vec3_t edge_valid_stepsize[MAX_FACE_CONNECTIONS]; // The edge_valid_pos moved up by 18 (STEPSIZE) units
+    edge_offset_type_t edge_offset_type[MAX_FACE_CONNECTIONS]; // Flag the type of offset
+
+    // Detected ledges
+    ledge_data_t ledge[MAX_FACE_CONNECTIONS];
+
+    // Positions
+    vec3_t center_poly; // The center of the ladder's polygon face, located directly on the surface
+    vec3_t center_poly_32_units; // The center of the ladder face, moved away from the surface normal by 32 units (full player width)
+    vec3_t aligned_edge_center[MAX_FACE_CONNECTIONS]; // The center of each aligned edge
+    vec3_t aligned_edge_center_stepsize[MAX_FACE_CONNECTIONS]; // The aligned_edge_center moved up by 18 (STEPSIZE) units
+
+    float volume; // Surface volume
+
+    // The min and max lengths from edge to edge within a face
+    float min_length;
+    float max_length;
+
+    // Connections within the face, and nearest connected faces
+    int snode_counter; // How many faces are connected
+    surface_node_t snodes[MAX_FACE_CONNECTIONS]; // Surface nodes
+
+} surface_data_t;
+
+typedef struct nav_s
+{
+    surface_data_t* surface_data_faces;
+    unsigned surface_data_checksum; // Checksum of all surface data faces based on current map checksum
+    short int faces_total; // Current number of faces in the array
+    short int ignored_faces_total; // Ignored faces: FACETYPE_IGNORED, FACETYPE_NONE
+} nav_t;
+
+typedef struct debug_draw_s
+{
+    // Turns drawing on/off - reduce overhead when off
+    qboolean arrows_inuse;
+    qboolean boxes_inuse;
+    qboolean crosses_inuse;
+    qboolean strings_inuse;
+
+    void* DrawSelection; // DrawSelection function pointer
+    void* DrawString; // DrawString function pointer
+    void* DrawCross; // DrawCross function pointer
+    void* DrawBox; // DrawCross function pointer
+    void* DrawArrow; // DrawArrow function pointer
+    int draw_arrow_num; // Current arrow being drawn: increments until MAX_DRAW_ARROWS, then resets to zero
+} debug_draw_t;
+
+typedef struct {
+    bsp_t       *cache;
+    int         *floodnums;     // if two areas have equal floodnums,
+                                // they are connected
+    qboolean        *portalopen;
+    int         override_bits;
+    int         checksum;
+    char        *entitystring;
+    //rekkie -- surface data -- s
+    nav_t       *nav;   // Navigation the game lib can access
+    //rekkie -- surface data -- e
+
+    //rekkie -- debug drawing -- s
+    debug_draw_t* draw;  // Rendering functions the game lib can access
+} cm_t;
+
+// if this is changed, Q2PRO protocol version must be changed too!
+typedef enum {
+    ss_dead,            // no map loaded
+    ss_loading,         // spawning level edicts
+    ss_game,            // actively running
+    ss_pic,             // showing static picture
+    ss_broadcast,       // running MVD client
+    ss_cinematic,       // playing a cinematic
+} server_state_t;
+
+typedef char configstring_t[MAX_QPATH];
+
+typedef struct {
+    int         solid32;
+
+#if USE_FPS
+
+// must be > MAX_FRAMEDIV
+#define ENT_HISTORY_SIZE    8
+#define ENT_HISTORY_MASK    (ENT_HISTORY_SIZE - 1)
+
+    struct {
+        vec3_t  origin;
+        int     framenum;
+    } history[ENT_HISTORY_SIZE];
+
+    vec3_t      create_origin;
+    int         create_framenum;
+#endif
+} server_entity_t;
+
+typedef struct {
+    server_state_t  state;      // precache commands are only valid during load
+    int             spawncount; // random number generated each server spawn
+
+#if USE_FPS
+    int         framerate;
+    frametime_t frametime;
+#endif
+
+    int         framenum;
+    unsigned    frameresidual;
+
+    char        mapcmd[MAX_QPATH];          // ie: *intro.cin+base
+
+    char        name[MAX_QPATH];            // map name, or cinematic name
+    cm_t        cm;
+
+    configstring_t  configstrings[MAX_CONFIGSTRINGS];
+
+    server_entity_t entities[MAX_EDICTS];
+} server_t;
+extern server_t             sv;         // local server
+
+// Game DLL updates Server of bot info
+
+typedef struct bot_client_s {
+    qboolean in_use;
+    char name[16];
+    int ping;
+    short score;
+    int number;
+} bot_client_t;
+extern bot_client_t bot_clients[MAX_CLIENTS];
+
+
+//rekkie -- Fake Bot Client -- e
+// End RekTek bots
 /*
 ==============================================================
  
@@ -384,18 +993,6 @@ COLLISION DETECTION
 #define AREA_SOLID  1
 #define AREA_TRIGGERS 2
 
-// plane_t structure
-// !!! if this is changed, it must be changed in asm code too !!!
-typedef struct cplane_s
-	{
-		vec3_t normal;
-		float dist;
-		byte type;   // for fast side tests
-		byte signbits;  // signx + (signy<<1) + (signz<<1)
-		byte pad[2];
-	}
-cplane_t;
-
 // structure offset for asm code
 #define CPLANE_NORMAL_X   0
 #define CPLANE_NORMAL_Y   4
@@ -414,13 +1011,7 @@ typedef struct cmodel_s
 	}
 cmodel_t;
 
-typedef struct csurface_s
-	{
-		char  name[16];
-		int   flags;
-		int   value;
-	}
-csurface_t;
+
 
 
 // a trace is returned when a box is swept through the world
@@ -886,30 +1477,6 @@ ELEMENTS COMMUNICATED ACROSS THE NET
 
 #define ANGLE2SHORT(x) ((int)((x)*65536/360) & 65535)
 #define SHORT2ANGLE(x) ((x)*(360.0/65536))
-
-
-//
-// config strings are a general means of communication from
-// the server to all connected clients.
-// Each config string can be at most MAX_QPATH characters.
-//
-#define CS_NAME    0
-#define CS_CDTRACK   1
-#define CS_SKY    2
-#define CS_SKYAXIS   3  // %f %f %f format
-#define CS_SKYROTATE  4
-#define CS_STATUSBAR  5  // display program string
-
-#define CS_MAXCLIENTS  30
-#define CS_MAPCHECKSUM  31  // for catching cheater maps
-
-#define CS_MODELS   32
-#define CS_SOUNDS   (CS_MODELS+MAX_MODELS)
-#define CS_IMAGES   (CS_SOUNDS+MAX_SOUNDS)
-#define CS_LIGHTS   (CS_IMAGES+MAX_IMAGES)
-#define CS_ITEMS   (CS_LIGHTS+MAX_LIGHTSTYLES)
-#define CS_PLAYERSKINS  (CS_ITEMS+MAX_ITEMS)
-#define MAX_CONFIGSTRINGS (CS_PLAYERSKINS+MAX_CLIENTS)
 
 
 //==============================================

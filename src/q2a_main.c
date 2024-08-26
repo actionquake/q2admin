@@ -212,6 +212,91 @@ void* G_FetchGameExtension(char *name)
 }
 #endif
 
+server_t             sv;         // local server
+bsp_t* SV_BSP(void)
+{
+    bsp_t* bsp = sv.cm.cache;
+    if (!bsp) {
+        Com_Printf("%s: no map loaded", __func__);
+        return NULL;
+    }
+
+    return bsp;
+}
+
+nav_t* CS_NAV(void)
+{
+    nav_t* nav = sv.cm.nav;
+    if (!nav) {
+        //Com_Error(ERR_DROP, "%s: no nav data loaded", __func__);
+        return NULL;
+    }
+
+    return nav;
+}
+
+
+bot_client_t bot_clients[MAX_CLIENTS];
+void SV_BotUpdateInfo(char* name, int ping, int score)
+{
+    for (int i = 0; i < MAX_CLIENTS; i++)
+    {
+        if (bot_clients[i].in_use)
+        {
+            if (strcmp(bot_clients[i].name, name) == 0)
+            {
+                bot_clients[i].ping = ping;
+                bot_clients[i].score = score;
+                return;
+            }
+        }
+    }
+}
+// Game DLL requests Server to add fake bot client
+void SV_BotConnect(char* name)
+{
+    for (int i = 0; i < MAX_CLIENTS; i++)
+    {
+        if (bot_clients[i].in_use == false) // Found a free slot
+        {
+            bot_clients[i].in_use = true;
+            snprintf(bot_clients[i].name, sizeof(bot_clients[i].name), "%s", name);
+            bot_clients[i].ping = 0;
+            bot_clients[i].score = 0;
+            bot_clients[i].number = i;
+            Com_Printf("%s Server added %s as a fake client\n", __func__, bot_clients[i].name);
+            break;
+        }
+    }
+}
+// Game DLL requests Server to remove fake bot client
+void SV_BotDisconnect(char* name)
+{
+    for (int i = 0; i < MAX_CLIENTS; i++)
+    {
+        if (bot_clients[i].in_use && strcmp(bot_clients[i].name, name) == 0)
+        {
+            bot_clients[i].in_use = false;
+            bot_clients[i].name[0] = 0;
+            bot_clients[i].ping = 0;
+            bot_clients[i].score = 0;
+            Com_Printf("%s Server removed %s as a fake client\n", __func__, name);
+            break;
+        }
+    }
+}
+// Game DLL requests Server to clear bot clients (init / map change)
+void SV_BotClearClients(void)
+{
+    for (int i = 0; i < MAX_CLIENTS; i++)
+    {
+        bot_clients[i].in_use = false;
+        bot_clients[i].name[0] = 0;
+        bot_clients[i].ping = 0;
+        bot_clients[i].score = 0;
+    }
+}
+
 void game_bprintf(int printlevel, char *fmt, ...)
 {
 	va_list args;
@@ -355,6 +440,12 @@ game_export_t *GetGameAPI(game_import_t *import)
 	globals.FetchGameExtension = G_FetchGameExtension;
 #endif
 
+	gi.Bsp = SV_BSP;
+	gi.Nav = CS_NAV;
+	gi.SV_BotClearClients = SV_BotClearClients;
+	gi.SV_BotConnect = SV_BotConnect;
+	gi.SV_BotDisconnect = SV_BotDisconnect;
+	gi.SV_BotUpdateInfo = SV_BotUpdateInfo;
 	copyDllInfo();
 
 	return &globals;
