@@ -127,7 +127,8 @@ end
 
 function mvd_os_exec(script)
     gi.dprintf('mvd.lua mvd_os_exec(): '..script..'\n')
-    local returnstuff = os.execute(script)
+    local cmd = string.format('nohup %s > script.log 2>&1 &', script)
+    local returnstuff = os.execute(cmd)
     gi.dprintf('mvd.lua mvd_os_exec(): returns: '..returnstuff..'\n')
     return returnstuff
 end
