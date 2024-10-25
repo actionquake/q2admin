@@ -2,12 +2,13 @@
 -- a very limited rcon by hifi <3  version 1.0
 --
 -- changes by TgT
+-- 1.5 added teamnone command
 -- 1.4 ability to change a server configmode
 -- 1.3 Do not allow ghosts to use lrcon, they crash script
 -- 1.2 disable gamemap (causing crashes) and make sure sv_allow_map is 1
 -- 1.1 fixed sv softmap and sv stuffall and maybe lrcon status crash
 
-local version = "1.4"
+local version = "1.5"
 gi.AddCommandString("set q2a_lrcon "..version.."\n")
 
 local quit_on_empty
@@ -80,6 +81,7 @@ function ClientCommand(client)
                 gi.cprintf(client, PRINT_HIGH, ' lrcon <cvar> <value>    - set cvar value\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon status            - get client status information\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon kick <id>         - kick a player\n')
+		gi.cprintf(client, PRINT_HIGH, ' lrcon teamnone <id>     - remove player from a team\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon map <mapname>     - change map\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon mode <mode|list>  - change server config\n')
                 --gi.cprintf(client, PRINT_HIGH, ' lrcon gamemap <mapname> - change map (keeping state)\n')
@@ -204,6 +206,15 @@ function ClientCommand(client)
 			else
 			    gi.AddCommandString('kick '..tostring(param - 1))
 			end
+                        return true
+                    end
+						
+	            if cmd == 'teamnone' then
+                        if param == nil or tonumber(param) == nil then
+                            gi.cprintf(client, PRINT_HIGH, 'Usage: teamnone <id>\n')
+                        else
+                            gi.AddCommandString('stuff '..tostring(param -1)..' team none')
+                        end
                         return true
                     end
                 else
