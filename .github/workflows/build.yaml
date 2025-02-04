@@ -87,7 +87,6 @@ jobs:
       - name: Set up MinGW
         run: |
           choco install mingw
-          refreshenv
           
       - name: Install Lua dependencies
         run: |
