@@ -33,7 +33,7 @@ jobs:
           USE_AQTION: "TRUE"
 
       - name: Generate archive
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: q2admin-lin-x86_64
           path: |
@@ -67,7 +67,7 @@ jobs:
           USE_AQTION: "TRUE"
 
       - name: Generate archive
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: q2admin-lin-arm64
           path: |
@@ -104,7 +104,7 @@ jobs:
           SHLIBEXT: "dll"
           
       - name: Generate archive
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: q2admin-win-x86_64
           path: |
