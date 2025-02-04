@@ -84,32 +84,23 @@ jobs:
           ref: ${{ github.ref }}
           path: build
           
-      - name: Set up MinGW
-        run: |
-          choco install mingw
+      - name: Setup MSVC Developer Command Prompt
+        uses: microsoft/setup-msbuild@v1.1
           
       - name: Install Lua dependencies
-        shell: powershell
         run: |
           choco install lua51
-          choco install luarocks --params="'/MW'"
-          Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
-          refreshenv
-          $env:LUA_INCDIR = "C:\Program Files (x86)\Lua\5.1\include"
-          $env:LUA_LIBDIR = "C:\Program Files (x86)\Lua\5.1"
-          luarocks config variables.CC gcc
-          luarocks config variables.LD gcc
+          choco install luarocks
           luarocks install luacheck
           
-            
       - name: Build q2admin
         working-directory: build
         run: make -j2 V=1
         env:
-          CC: "x86_64-w64-mingw32-gcc"
+          CC: "cl"
           USE_AQTION: "TRUE"
           SHLIBEXT: "dll"
-          
+
       - name: Generate archive
         uses: actions/upload-artifact@v4
         with:
