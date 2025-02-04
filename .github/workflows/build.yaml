@@ -74,3 +74,41 @@ jobs:
             build/gamearm64.so
             build/plugins
             build/config.lua
+
+  windows_x86_64_build_q2admin:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: actionquake/q2admin
+          ref: ${{ github.ref }}
+          path: build
+          
+      - name: Set up MinGW
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
+          
+      - name: Install Lua dependencies
+        run: |
+          choco install lua51
+          choco install luarocks
+          luarocks install luacheck
+          
+      - name: Build q2admin
+        working-directory: build
+        run: make -j2 V=1
+        env:
+          CC: "x86_64-w64-mingw32-gcc"
+          USE_AQTION: "TRUE"
+          SHLIBEXT: "dll"
+          
+      - name: Generate archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: q2admin-win-x86_64
+          path: |
+            build/gamex86_64.dll
+            build/plugins
+            build/config.lua
+          
