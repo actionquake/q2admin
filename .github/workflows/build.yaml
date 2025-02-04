@@ -86,7 +86,11 @@ jobs:
           
       - name: Setup MSVC Developer Command Prompt
         uses: microsoft/setup-msbuild@v1.1
-          
+      
+      - name: Install Visual Studio C++ components
+        run: |
+          choco install visualstudio2022-workload-vctools
+
       - name: Install Lua dependencies
         run: |
           choco install lua51
