@@ -95,9 +95,13 @@ jobs:
           choco install luarocks --params="'/MW'"
           Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           refreshenv
+          $env:LUA_INCDIR = "C:\Program Files (x86)\Lua\5.1\include"
+          $env:LUA_LIBDIR = "C:\Program Files (x86)\Lua\5.1"
+          luarocks config variables.CC gcc
+          luarocks config variables.LD gcc
           luarocks install luacheck
-        
           
+            
       - name: Build q2admin
         working-directory: build
         run: make -j2 V=1
