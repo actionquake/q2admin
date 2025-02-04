@@ -85,9 +85,9 @@ jobs:
           path: build
           
       - name: Set up MinGW
-        uses: egor-tensin/setup-mingw@v2
-        with:
-          platform: x64
+        run: |
+          choco install mingw
+          refreshenv
           
       - name: Install Lua dependencies
         run: |
