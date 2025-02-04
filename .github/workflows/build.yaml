@@ -89,11 +89,14 @@ jobs:
           choco install mingw
           
       - name: Install Lua dependencies
+        shell: powershell
         run: |
           choco install lua51
           choco install luarocks --params="'/MW'"
+          Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           refreshenv
           luarocks install luacheck
+        
           
       - name: Build q2admin
         working-directory: build
