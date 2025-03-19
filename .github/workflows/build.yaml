@@ -10,7 +10,7 @@ jobs:
   linux_x86_64_build_q2admin:
     runs-on: [self-hosted, x86]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: actionquake/q2admin
           ref: ${{ github.ref }}
@@ -33,7 +33,7 @@ jobs:
           USE_AQTION: "TRUE"
 
       - name: Generate archive
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: q2admin-lin-x86_64
           path: |
@@ -44,7 +44,7 @@ jobs:
   linux_arm64_build_q2admin:
     runs-on: [self-hosted, ARM64]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: actionquake/q2admin
           ref: ${{ github.ref }}
@@ -67,7 +67,7 @@ jobs:
           USE_AQTION: "TRUE"
 
       - name: Generate archive
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: q2admin-lin-arm64
           path: |
