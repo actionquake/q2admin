@@ -14,6 +14,7 @@ gi.AddCommandString("set q2a_lrcon "..version.."\n")
 local quit_on_empty
 local cvars
 local modes
+local q2a_lrcon_password
 
 local claimer = nil
 local claimer_store = nil
@@ -26,6 +27,7 @@ function q2a_load(config)
     quit_on_empty = config.quit_on_empty
     cvars = config.cvars
     modes = config.modes
+    q2a_lrcon_password = config.q2a_lrcon_password
 
     if quit_on_empty == nil or cvars == nil then
         gi.dprintf("Warning: lrcon config is invalid\n")
@@ -42,8 +44,40 @@ function q2a_unload()
     end
 end
 
+function CheckForPassword(client)
+    if q2a_lrcon_password ~= nil and q2a_lrcon_password ~= '' then
+        -- Check if the command is "lrcon password <password>"
+        if gi.argv(2) == "password" then
+            local provided_password = gi.argv(3)
+            
+            if provided_password == q2a_lrcon_password then
+                -- Password matches, set this client as authenticated
+                ex.players[client].lrcon_auth = true
+                gi.cprintf(client, PRINT_HIGH, "Password accepted. You now have lrcon access.\n")
+            else
+                gi.cprintf(client, PRINT_HIGH, "Invalid lrcon password.\n")
+            end
+            return true -- Command was handled
+        end
+        
+        -- For all other lrcon commands, check if the client is authenticated
+        if not ex.players[client].lrcon_auth then
+            gi.cprintf(client, PRINT_HIGH, "You need to authenticate first. Use: lrcon password <password>\n")
+            return true -- Command was handled, but access denied
+        end
+    end
+    
+    -- If no password is set or client is authenticated, allow access
+    return false -- Continue processing the command
+end
+
 function ClientCommand(client)
     if(gi.argv(1) == 'lrcon') then
+
+        if CheckForPassword(client) then
+            return true -- Password check handled the command
+        end
+
         if ex.players[client] ~= nil then
         if gi.argc() == 1 then
             gi.cprintf(client, PRINT_HIGH, 'Usage: lrcon <command> [parameters]\n')
@@ -75,13 +109,14 @@ function ClientCommand(client)
                 return true
             elseif cmd == 'help' then
                 gi.cprintf(client, PRINT_HIGH, 'Limited rcon usage:\n')
+                gi.cprintf(client, PRINT_HIGH, ' lrcon password          - password to access lrcon\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon claim             - claim the server\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon release           - release the server to be re-claimed\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon <cvar>            - query cvar value\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon <cvar> <value>    - set cvar value\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon status            - get client status information\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon kick <id>         - kick a player\n')
-		gi.cprintf(client, PRINT_HIGH, ' lrcon teamnone <id>     - remove player from a team\n')
+		        gi.cprintf(client, PRINT_HIGH, ' lrcon teamnone <id>     - remove player from a team\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon map <mapname>     - change map\n')
                 gi.cprintf(client, PRINT_HIGH, ' lrcon mode <mode|list>  - change server config\n')
                 --gi.cprintf(client, PRINT_HIGH, ' lrcon gamemap <mapname> - change map (keeping state)\n')
@@ -256,5 +291,10 @@ function ClientDisconnect(client)
 
     if client == claimer then
         claimer = nil
+    end
+
+    -- Clear lrcon authentication
+    if ex.players[client] then
+        ex.players[client].lrcon_auth = nil
     end
 end
