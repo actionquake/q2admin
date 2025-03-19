@@ -7,6 +7,7 @@
 plugins = {
     lrcon = {
         quit_on_empty = true,
+        q2a_lrcon_password = 'q2adminpassword',
         cvars = {
             -- server
             'password', 'maxclients', 'timelimit', 'dmflags', 'sv_gravity', 'sv_iplimit', 'fraglimit',
