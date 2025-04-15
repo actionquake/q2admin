@@ -26,15 +26,35 @@ _rsakeylocation="$HOME/.ssh/id_rsa"
 
 ## AQTion MVD transfer
 
-if [ -f "${_fullfilepath}" ]; then
-  ( sleep 10 ) && ( s3cmd put "${_fullfilepath}" s3://${_s3bucket}/${_targetdir}/${_servertargetdir}/${_file} ) &
-elif [ -z "${_file}" ]; then
-  echo "$0 Error: $_file not found. Not transferring anything. :("
-  exit 1
-else
-  echo "Something went wrong other than file not found"
+max_retries=5
+retries=0
+
+while [ $retries -lt $max_retries ]; do
+  if [ -f "${_fullfilepath}" ]; then
+    if lsof "${_fullfilepath}" > /dev/null; then
+      echo "Error: ${_file} is open or being written to by another process. Not transferring."
+      exit 1
+    else
+      ( sleep 5 ) && ( s3cmd put "${_fullfilepath}" s3://${_s3bucket}/${_targetdir}/${_servertargetdir}/${_file} ) && break
+    fi
+  elif [ -z "${_file}" ]; then
+    echo "$0 Error: ${_file} not found. Not transferring anything. :("
+    exit 1
+  else
+    echo "Something went wrong other than file not found"
+    exit 1
+  fi
+
+  retries=$((retries+1))
+  echo "Upload failed (retry $retries of $max_retries). Retrying in 2 seconds..."
+  sleep 2
+done
+
+if [ $retries -eq $max_retries ]; then
+  echo "Max retries reached for ${_file}.  Upload failed after $max_retries attempts. Exiting."
   exit 1
 fi
+
 
 ## Old method, keeping around but unused:
 
