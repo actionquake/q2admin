@@ -91,7 +91,7 @@ function q2a_load(config)
     return 0
   end
 
-  gi.dprintf("cvarbans.lua q2a_load(): Checking/Downloading new cvarbans... ")
+  gi.dprintf("cvarbans.lua q2a_load(): Checking/Downloading new cvarbans...\n")
   cvarbans_update = root_dir..'plugins/cvarbans_update.sh  "'..url..'" "'..game..'"'
   cvarbans_os_exec(cvarbans_update) -- check for updated cvarbanlist on load
 end
