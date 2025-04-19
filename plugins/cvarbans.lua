@@ -56,7 +56,7 @@ end
 
 function checkcvarbans()
     gi.AddCommandString("checkcvarbans\n")
-    gi.dprintf("checking all clients cvars\n")
+    --gi.dprintf("checking all clients cvars\n")
 end
 
 -- log illegal cvar settings
@@ -82,6 +82,7 @@ function q2a_load(config)
   
   root_dir = config.root_dir
   url = config.url
+  check_interval = config.check_interval or 10 -- default 10 seconds
   if root_dir == nil then
     gi.dprintf("cvarbans.lua q2a_load(): 'root_dir' not defined in the config.lua file... aborting\n")
     return 0
@@ -90,8 +91,26 @@ function q2a_load(config)
     gi.dprintf("cvarbans.lua q2a_load(): 'url' not defined in the config.lua file... aborting\n")
     return 0
   end
+  if check_interval == nil then
+    gi.dprintf("cvarbans.lua q2a_load(): 'check_interval' not defined in the config.lua file... using default 10 seconds\n")
+  elseif check_interval == '0' or tonumber(check_interval) == 0 then
+    gi.dprintf("cvarbans.lua q2a_load(): 'check_interval' set to 0 seconds... disabling automatic cvarbans checking\n")
+  else
+    gi.dprintf("cvarbans.lua q2a_load(): 'check_interval' set to "..check_interval.." seconds\n")
+  end
 
   gi.dprintf("cvarbans.lua q2a_load(): Checking/Downloading new cvarbans... ")
   cvarbans_update = root_dir..'plugins/cvarbans_update.sh  "'..url..'" "'..game..'"'
   cvarbans_os_exec(cvarbans_update) -- check for updated cvarbanlist on load
+end
+
+local last_check = os.time()
+
+function RunFrame()
+    local now = os.time()
+
+    if tonumber(check_interval) > 0 and now - last_check >= tonumber(check_interval) then
+        checkcvarbans()
+        last_check = now
+    end
 end
